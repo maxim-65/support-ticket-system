@@ -4,10 +4,15 @@ Junior full-stack technical assessment implementation using a Node.js/Express AP
 
 ## Technology stack
 
-- Backend: Node.js, Express.js, MySQL2, JWT, bcrypt, dotenv, CORS
 - Frontend: React, React Router, Axios
+- Backend: Node.js, Express.js, MySQL2, dotenv, CORS
+- Database: MySQL
+- Authentication: JWT with bcrypt password hashing
+- Authorization: Role-based customer/support-agent access
 - Testing: Jest and Supertest
 - API verification: Postman collection
+- Version control: Git/GitHub
+- Deployment: React static frontend, Node.js/Express API, managed MySQL
 
 ## Folder structure
 
@@ -139,6 +144,7 @@ Successful login requests save `customerToken`, `customerBToken`, and `agentToke
 ### Authentication
 
 - `POST /api/auth/register` - registers a customer; returns `201`
+- `POST /api/auth/register/agent` - registers a support agent; returns `201`
 - `POST /api/auth/login` - returns a one-hour JWT and user information
 
 ### Tickets
@@ -198,3 +204,46 @@ Authorization: Bearer <jwt>
 - Sign out
 
 Backend authorization remains the security boundary for every protected operation.
+
+## Deployment
+
+Recommended architecture:
+
+```text
+React static frontend → Node.js/Express backend → Managed MySQL
+```
+
+Build and publish the frontend:
+
+```powershell
+cd frontend
+npm run build
+```
+
+The production output is written to `frontend\build`. Configure the frontend
+hosting provider to rewrite application routes to `index.html`, because the
+application uses React Router.
+
+Set the frontend build variable to the deployed API base URL:
+
+```text
+REACT_APP_API_URL=https://your-api.example.com/api
+```
+
+Run the backend with:
+
+```powershell
+cd backend
+npm start
+```
+
+Configure the backend deployment with `DB_HOST`, `DB_USER`, `DB_PASSWORD`,
+`DB_NAME`, `JWT_SECRET`, `PORT`, and `FRONTEND_URL`. Use a unique production
+JWT secret and set `FRONTEND_URL` to the exact deployed frontend origin.
+
+Apply `database\schema.sql` carefully to the provider-created MySQL database.
+The script contains `CREATE DATABASE`, `USE`, and destructive `DROP TABLE`
+statements intended for development initialization; do not run those
+destructive statements against an existing production database. Do not run
+`database\seed.sql` automatically in production because it creates sample
+accounts and tickets.

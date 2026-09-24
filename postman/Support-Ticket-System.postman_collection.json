@@ -55,6 +55,10 @@
       "value": ""
     },
     {
+      "key": "newAgentEmail",
+      "value": ""
+    },
+    {
       "key": "ticketId",
       "value": "1"
     },
@@ -227,6 +231,52 @@
                   "pm.test('Status is 409', function () { pm.response.to.have.status(409); });",
                   "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
                   "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register support agent - success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register/agent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register",
+                "agent"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Support Agent\",\n  \"email\": \"{{newAgentEmail}}\",\n  \"password\": \"{{agentPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Registered role is agent', function () { pm.expect(pm.response.json().role).to.eql('agent'); });",
+                  "pm.test('Response excludes password hash', function () { pm.expect(pm.response.json()).to.not.have.property('password_hash'); });"
                 ]
               }
             }
