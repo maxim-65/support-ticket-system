@@ -1,0 +1,1427 @@
+{
+  "info": {
+    "_postman_id": "8fdd4e04-7b2d-4d0c-8a57-support-ticket-system",
+    "name": "Support Ticket System API",
+    "description": "API contract verification for the Support Ticket Management System. Set credential variables before running.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api"
+    },
+    {
+      "key": "customerToken",
+      "value": ""
+    },
+    {
+      "key": "customerBToken",
+      "value": ""
+    },
+    {
+      "key": "agentToken",
+      "value": ""
+    },
+    {
+      "key": "customerEmail",
+      "value": ""
+    },
+    {
+      "key": "customerPassword",
+      "value": ""
+    },
+    {
+      "key": "customerBEmail",
+      "value": ""
+    },
+    {
+      "key": "customerBPassword",
+      "value": ""
+    },
+    {
+      "key": "agentEmail",
+      "value": ""
+    },
+    {
+      "key": "agentPassword",
+      "value": ""
+    },
+    {
+      "key": "customerName",
+      "value": "Postman Customer"
+    },
+    {
+      "key": "newCustomerEmail",
+      "value": ""
+    },
+    {
+      "key": "ticketId",
+      "value": "1"
+    },
+    {
+      "key": "otherTicketId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health and Authentication",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes status', function () { pm.expect(pm.response.json()).to.have.property('status'); });",
+                  "pm.test('Response includes message', function () { pm.expect(pm.response.json()).to.have.property('message'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register customer - success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{customerName}}\",\n  \"email\": \"{{newCustomerEmail}}\",\n  \"password\": \"{{customerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes id', function () { pm.expect(pm.response.json()).to.have.property('id'); });",
+                  "pm.test('Response includes email', function () { pm.expect(pm.response.json()).to.have.property('email'); });",
+                  "pm.test('Response includes role', function () { pm.expect(pm.response.json()).to.have.property('role'); });",
+                  "pm.test('Registered role is customer', function () { pm.expect(pm.response.json().role).to.eql('customer'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register customer - invalid input",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"email\": \"not-an-email\",\n  \"password\": \"short\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register customer - duplicate email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{customerName}}\",\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login customer - success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes token', function () { pm.expect(pm.response.json()).to.have.property('token'); });",
+                  "pm.test('Response includes user', function () { pm.expect(pm.response.json()).to.have.property('user'); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set('customerToken', pm.response.json().token); }",
+                  "pm.test('JWT is non-empty', function () { pm.expect(pm.response.json().token).to.be.a('string').and.not.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login customer - invalid password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"wrong-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login customer - nonexistent email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"missing-user@example.com\",\n  \"password\": \"DoesNotMatter!2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login customer B - success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{customerBEmail}}\",\n  \"password\": \"{{customerBPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes token', function () { pm.expect(pm.response.json()).to.have.property('token'); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set('customerBToken', pm.response.json().token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login agent - success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{agentEmail}}\",\n  \"password\": \"{{agentPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes token', function () { pm.expect(pm.response.json()).to.have.property('token'); });",
+                  "pm.test('Response includes user', function () { pm.expect(pm.response.json()).to.have.property('user'); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set('agentToken', pm.response.json().token); }",
+                  "pm.test('JWT user role is agent', function () { pm.expect(pm.response.json().user.role).to.eql('agent'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Get tickets - customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "updated_at"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get tickets - agent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "created_at"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get tickets - search filter sort",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "invoice"
+                },
+                {
+                  "key": "status",
+                  "value": "open"
+                },
+                {
+                  "key": "priority",
+                  "value": "medium"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "updated_at"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get tickets - unauthorized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create ticket - customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Postman verification ticket\",\n  \"description\": \"Temporary ticket created by the Postman collection.\",\n  \"priority\": \"low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes id', function () { pm.expect(pm.response.json()).to.have.property('id'); });",
+                  "pm.test('Response includes user_id', function () { pm.expect(pm.response.json()).to.have.property('user_id'); });",
+                  "pm.test('Response includes subject', function () { pm.expect(pm.response.json()).to.have.property('subject'); });",
+                  "pm.test('Response includes priority', function () { pm.expect(pm.response.json()).to.have.property('priority'); });",
+                  "pm.test('Response includes status', function () { pm.expect(pm.response.json()).to.have.property('status'); });",
+                  "pm.collectionVariables.set('createdTicketId', pm.response.json().id); pm.test('Ticket starts open', function () { pm.expect(pm.response.json().status).to.eql('open'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get ticket - owner",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes id', function () { pm.expect(pm.response.json()).to.have.property('id'); });",
+                  "pm.test('Response includes subject', function () { pm.expect(pm.response.json()).to.have.property('subject'); });",
+                  "pm.test('Response includes customer_name', function () { pm.expect(pm.response.json()).to.have.property('customer_name'); });",
+                  "pm.test('Response includes customer_email', function () { pm.expect(pm.response.json()).to.have.property('customer_email'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get ticket - invalid ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/not-a-ticket-id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "not-a-ticket-id"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get ticket - nonexistent ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "999999999"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update ticket - agent",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"priority\": \"high\",\n  \"assigned_to\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes id', function () { pm.expect(pm.response.json()).to.have.property('id'); });",
+                  "pm.test('Response includes status', function () { pm.expect(pm.response.json()).to.have.property('status'); });",
+                  "pm.test('Response includes priority', function () { pm.expect(pm.response.json()).to.have.property('priority'); });",
+                  "pm.test('Agent update applied', function () { pm.expect(pm.response.json().status).to.eql('in_progress'); pm.expect(pm.response.json().priority).to.eql('high'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete ticket - agent",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{createdTicketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{createdTicketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204', function () { pm.response.to.have.status(204); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update ticket - customer forbidden",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"closed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get ticket - cross-customer forbidden",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{otherTicketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{otherTicketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerBToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Get comments - authorized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Post comment - customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Customer comment from Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes id', function () { pm.expect(pm.response.json()).to.have.property('id'); });",
+                  "pm.test('Response includes ticket_id', function () { pm.expect(pm.response.json()).to.have.property('ticket_id'); });",
+                  "pm.test('Response includes user_id', function () { pm.expect(pm.response.json()).to.have.property('user_id'); });",
+                  "pm.test('Response includes comment', function () { pm.expect(pm.response.json()).to.have.property('comment'); });",
+                  "pm.test('Response includes author_name', function () { pm.expect(pm.response.json()).to.have.property('author_name'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Post comment - agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Agent comment from Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes id', function () { pm.expect(pm.response.json()).to.have.property('id'); });",
+                  "pm.test('Response includes ticket_id', function () { pm.expect(pm.response.json()).to.have.property('ticket_id'); });",
+                  "pm.test('Response includes user_id', function () { pm.expect(pm.response.json()).to.have.property('user_id'); });",
+                  "pm.test('Response includes comment', function () { pm.expect(pm.response.json()).to.have.property('comment'); });",
+                  "pm.test('Response includes author_role', function () { pm.expect(pm.response.json()).to.have.property('author_role'); });",
+                  "pm.test('Comment author is agent', function () { pm.expect(pm.response.json().author_role).to.eql('agent'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Post comment - cross-customer forbidden",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{otherTicketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{otherTicketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerBToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Should be rejected.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get comments - missing ticket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/999999999/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "999999999",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Post comment - invalid input",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get users - agent list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "const users = pm.response.json(); pm.test('Response is an array', function () { pm.expect(users).to.be.an('array'); }); pm.test('No password fields exposed', function () { users.forEach(function (user) { pm.expect(user).not.to.have.property('password'); pm.expect(user).not.to.have.property('password_hash'); }); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get users - customer forbidden",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.json; });",
+                  "pm.test('Response includes error', function () { pm.expect(pm.response.json()).to.have.property('error'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
