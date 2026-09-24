@@ -241,9 +241,14 @@ Configure the backend deployment with `DB_HOST`, `DB_USER`, `DB_PASSWORD`,
 `DB_NAME`, `JWT_SECRET`, `PORT`, and `FRONTEND_URL`. Use a unique production
 JWT secret and set `FRONTEND_URL` to the exact deployed frontend origin.
 
-Apply `database\schema.sql` carefully to the provider-created MySQL database.
-The script contains `CREATE DATABASE`, `USE`, and destructive `DROP TABLE`
-statements intended for development initialization; do not run those
-destructive statements against an existing production database. Do not run
-`database\seed.sql` automatically in production because it creates sample
-accounts and tickets.
+For a newly provisioned production database, select the database supplied by
+the hosting provider and run `database\production-schema.sql`. This script
+creates the required tables and indexes without creating or selecting a
+database and without destructive reset statements.
+
+`database\schema.sql` is intended for local development initialization. It
+contains `CREATE DATABASE`, `USE`, and destructive `DROP TABLE` statements;
+do not run it blindly against an existing production database.
+
+Do not run `database\seed.sql` automatically in production because it creates
+sample accounts, tickets, and comments.
