@@ -75,6 +75,8 @@ DB_HOST
 DB_USER
 DB_PASSWORD
 DB_NAME
+DB_PORT
+DB_SSL_CA_PATH
 JWT_SECRET
 PORT
 FRONTEND_URL
@@ -238,8 +240,16 @@ npm start
 ```
 
 Configure the backend deployment with `DB_HOST`, `DB_USER`, `DB_PASSWORD`,
-`DB_NAME`, `JWT_SECRET`, `PORT`, and `FRONTEND_URL`. Use a unique production
-JWT secret and set `FRONTEND_URL` to the exact deployed frontend origin.
+`DB_NAME`, `DB_PORT`, `DB_SSL_CA_PATH`, `JWT_SECRET`, `PORT`, and
+`FRONTEND_URL`. Use a unique production JWT secret and set `FRONTEND_URL` to
+the exact deployed frontend origin.
+
+For managed MySQL hosting, set `DB_PORT` to the provider port and
+`DB_SSL_CA_PATH` to a securely mounted path containing the provider's CA
+certificate. The backend enables TLS with certificate verification whenever
+`DB_SSL_CA_PATH` is set. Leave `DB_SSL_CA_PATH` empty for local MySQL
+development when the local server does not require TLS. Never commit the CA
+certificate or any database credentials.
 
 For a newly provisioned production database, select the database supplied by
 the hosting provider and run `database\production-schema.sql`. This script
