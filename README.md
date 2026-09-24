@@ -4,8 +4,8 @@ Junior full-stack technical assessment implementation using a Node.js/Express AP
 
 ## Technology stack
 
-- Frontend: React, React Router, Axios
-- Backend: Node.js, Express.js, MySQL2, dotenv, CORS
+- Frontend: React, React Router, native Fetch API
+- Backend: Node.js, Express.js, MySQL2, dotenv
 - Database: MySQL
 - Authentication: JWT with bcrypt password hashing
 - Authorization: Role-based customer/support-agent access
