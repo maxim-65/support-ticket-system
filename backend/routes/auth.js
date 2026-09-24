@@ -14,8 +14,8 @@ function validationError(message) {
   return error;
 }
 
-router.post('/register', async (req, res, next) => {
-  const { name, email, password } = req.body || {};
+function validateRegistrationInput(body, requireConfirmation = false) {
+  const { name, email, password, confirmPassword } = body || {};
 
   if (
     typeof name !== 'string' ||
@@ -25,38 +25,68 @@ router.post('/register', async (req, res, next) => {
     typeof password !== 'string' ||
     !password
   ) {
-    return next(validationError('Name, email, and password are required'));
+    throw validationError('Name, email, and password are required');
   }
 
   const normalizedEmail = email.trim().toLowerCase();
   if (!emailPattern.test(normalizedEmail)) {
-    return next(validationError('A valid email address is required'));
+    throw validationError('A valid email address is required');
   }
 
   if (password.length < minimumPasswordLength) {
-    return next(
-      validationError(`Password must be at least ${minimumPasswordLength} characters long`)
+    throw validationError(
+      `Password must be at least ${minimumPasswordLength} characters long`
     );
   }
 
+  if (requireConfirmation && password !== confirmPassword) {
+    throw validationError('Passwords do not match');
+  }
+
+  return {
+    name: name.trim(),
+    email: normalizedEmail,
+    password,
+  };
+}
+
+async function createUser(res, next, details, role) {
   try {
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(details.password, 10);
     const [result] = await pool.execute(
       'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)',
-      [name.trim(), normalizedEmail, passwordHash, 'customer']
+      [details.name, details.email, passwordHash, role]
     );
 
     return res.status(201).json({
       id: result.insertId,
-      name: name.trim(),
-      email: normalizedEmail,
-      role: 'customer',
+      name: details.name,
+      email: details.email,
+      role,
     });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(409).json({ error: 'An account with that email already exists' });
     }
 
+    return next(error);
+  }
+}
+
+router.post('/register', async (req, res, next) => {
+  try {
+    const details = validateRegistrationInput(req.body);
+    return await createUser(res, next, details, 'customer');
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post('/register/agent', async (req, res, next) => {
+  try {
+    const details = validateRegistrationInput(req.body, true);
+    return await createUser(res, next, details, 'agent');
+  } catch (error) {
     return next(error);
   }
 });

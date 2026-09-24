@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../api/client";
 import CustomerHeader from "../components/CustomerHeader";
 import TicketCard from "../components/TicketCard";
+import { getPriorityLabel, getStatusLabel } from "../utils/ticketLabels";
 
 function CustomerDashboard() {
   const [tickets, setTickets] = useState([]);
@@ -25,7 +26,7 @@ function CustomerDashboard() {
       params.sortBy = "updated_at";
       params.sortOrder = "desc";
       const response = await api.get("/tickets", { params });
-      setTickets(response.data);
+      setTickets(response.data.filter((ticket) => ticket.status !== "closed"));
     } catch (requestError) {
       setError(
         requestError.response?.status === 401
@@ -56,10 +57,13 @@ function CustomerDashboard() {
         <div className="page-heading">
           <div>
             <h1>My tickets</h1>
-            <p>View and follow up on your support requests.</p>
+            <p>View and follow up on your active support requests.</p>
           </div>
           <Link className="primary-button" to="/customer/tickets/new">
             Create ticket
+          </Link>
+          <Link className="secondary-button" to="/customer/tickets/past">
+            View past tickets
           </Link>
         </div>
 
@@ -74,17 +78,17 @@ function CustomerDashboard() {
           />
           <label htmlFor="ticket-status">Status</label>
           <select id="ticket-status" name="status" value={filters.status} onChange={updateFilter}>
-            <option value="">All statuses</option>
-            <option value="open">Open</option>
-            <option value="in_progress">In progress</option>
-            <option value="closed">Closed</option>
+            <option value="">All active statuses</option>
+            {["open", "in_progress"].map((value) => (
+              <option key={value} value={value}>{getStatusLabel(value)}</option>
+            ))}
           </select>
           <label htmlFor="ticket-priority">Priority</label>
           <select id="ticket-priority" name="priority" value={filters.priority} onChange={updateFilter}>
             <option value="">All priorities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            {["low", "medium", "high"].map((value) => (
+              <option key={value} value={value}>{getPriorityLabel(value)}</option>
+            ))}
           </select>
           <button type="button" className="secondary-button" onClick={clearFilters}>
             Clear filters
@@ -95,9 +99,9 @@ function CustomerDashboard() {
         {isLoading && <p className="state-message">Loading your tickets...</p>}
         {!isLoading && !error && tickets.length === 0 && (
           <section className="empty-state">
-            <h2>No tickets found</h2>
-            <p>Create a ticket or clear the filters to see your requests.</p>
-            <Link className="primary-button" to="/customer/tickets/new">Create your first ticket</Link>
+            <h2>{filters.search || filters.status || filters.priority ? "No tickets match your current filters." : "No active tickets"}</h2>
+            <p>{filters.search || filters.status || filters.priority ? "Try clearing the filters or changing your search." : "Create a ticket to get support started."}</p>
+            <Link className="primary-button" to="/customer/tickets/new">Create ticket</Link>
           </section>
         )}
         {!isLoading && !error && tickets.length > 0 && (

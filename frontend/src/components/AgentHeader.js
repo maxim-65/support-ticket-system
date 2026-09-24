@@ -11,6 +11,7 @@ function AgentHeader() {
       <nav aria-label="Agent navigation">
         <span className="welcome-text">Hi, {user?.name}</span>
         <Link to="/agent/dashboard">Dashboard</Link>
+        <Link to="/agent/tickets/completed">Completed tickets</Link>
         <button className="link-button" type="button" onClick={logout}>Sign out</button>
       </nav>
     </header>

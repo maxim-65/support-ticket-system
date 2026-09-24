@@ -30,6 +30,26 @@ body {
   gap: 0.5rem;
 }
 
+.auth-back-link {
+  display: inline-block;
+  margin: 0.25rem 0 1rem;
+}
+
+.auth-navigation {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+.auth-navigation p {
+  margin: 0;
+}
+
+.auth-secondary-link {
+  font-weight: 700;
+}
+
 .auth-card input {
   width: 100%;
   margin-bottom: 0.75rem;
@@ -51,6 +71,45 @@ main > button {
 button:disabled {
   cursor: wait;
   opacity: 0.7;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+a:hover {
+  color: #1e40af;
+}
+
+button:not(:disabled):hover,
+.primary-button:hover,
+.ticket-form button:not(:disabled):hover,
+.comment-form button:not(:disabled):hover {
+  background: #1e40af;
+}
+
+.secondary-button:hover {
+  background: #d1d5db;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 1px #1d4ed8;
 }
 
 .app-header {
@@ -78,6 +137,10 @@ button:disabled {
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.page-heading > .secondary-button {
+  white-space: nowrap;
 }
 
 .welcome-text {
@@ -207,6 +270,17 @@ button:disabled {
   font-size: 0.9rem;
 }
 
+.priority-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.25rem;
+  font-weight: 700;
+}
+
+.priority-low { color: #166534; background: #dcfce7; }
+.priority-medium { color: #92400e; background: #fef3c7; }
+.priority-high { color: #991b1b; background: #fee2e2; }
+
 .ticket-customer {
   margin: -0.5rem 0 1rem;
   color: #4b5563;
@@ -242,6 +316,14 @@ button:disabled {
   grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr auto;
 }
 
+.past-filter-panel {
+  grid-template-columns: 1.5fr 1fr auto;
+}
+
+.completed-filter-panel {
+  grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+}
+
 .badge {
   display: inline-block;
   padding: 0.25rem 0.5rem;
@@ -263,6 +345,23 @@ button:disabled {
   background: #fff;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
+}
+
+.management-section {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.management-section:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.management-section h3 {
+  margin: 0;
+  font-size: 1rem;
 }
 
 .ticket-form button,
@@ -308,6 +407,37 @@ button:disabled {
   margin-bottom: 0;
 }
 
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.role-pill {
+  display: inline-block;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid #9ca3af;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.role-customer { color: #1e3a8a; background: #dbeafe; }
+.role-agent { color: #166534; background: #dcfce7; }
+
+.status-guidance {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 0.75rem;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.status-guidance span {
+  display: block;
+}
+
 .state-message,
 .error-panel,
 .success-panel,
@@ -335,6 +465,10 @@ button:disabled {
 
   .filter-panel {
     grid-template-columns: 1fr;
+  }
+
+  .page-heading > .secondary-button {
+    white-space: normal;
   }
 
   .stats-grid {

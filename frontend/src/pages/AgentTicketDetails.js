@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../api/client";
 import AgentHeader from "../components/AgentHeader";
+import { getCommentRoleLabel, getPriorityLabel, getStatusLabel } from "../utils/ticketLabels";
 
 const statuses = ["open", "in_progress", "closed"];
 const priorities = ["low", "medium", "high"];
@@ -84,7 +85,9 @@ function AgentTicketDetails() {
     <>
       <AgentHeader />
       <main className="page-container narrow-container">
-        <Link to="/agent/dashboard">← Back to dashboard</Link>
+        <Link to={ticket?.status === "closed" ? "/agent/tickets/completed" : "/agent/dashboard"}>
+          ← Back to {ticket?.status === "closed" ? "completed tickets" : "current tickets"}
+        </Link>
         {isLoading && <p className="state-message">Loading ticket...</p>}
         {!isLoading && error && <p className="error-panel" role="alert">{error}</p>}
         {!isLoading && !error && ticket && (
@@ -93,7 +96,7 @@ function AgentTicketDetails() {
             <article className="detail-card">
               <div className="page-heading">
                 <div><h1>{ticket.subject}</h1><p>Ticket #{ticket.id}</p></div>
-                <span className={`badge badge-${ticket.status}`}>{ticket.status}</span>
+                <span className={`badge badge-${ticket.status}`}>{getStatusLabel(ticket.status)}</span>
               </div>
               <p className="ticket-description">{ticket.description}</p>
               <dl className="detail-grid">
@@ -105,19 +108,33 @@ function AgentTicketDetails() {
             </article>
             <form className="ticket-form agent-update-form" onSubmit={updateTicket}>
               <h2>Manage ticket</h2>
-              <label htmlFor="ticket-status">Status</label>
-              <select id="ticket-status" value={status} onChange={(event) => setStatus(event.target.value)}>
-                {statuses.map((value) => <option key={value} value={value}>{value.replace("_", " ")}</option>)}
-              </select>
-              <label htmlFor="ticket-priority">Priority</label>
-              <select id="ticket-priority" value={priority} onChange={(event) => setPriority(event.target.value)}>
-                {priorities.map((value) => <option key={value} value={value}>{value}</option>)}
-              </select>
-              <label htmlFor="ticket-agent">Assign agent</label>
-              <select id="ticket-agent" value={assignedTo} onChange={(event) => setAssignedTo(event.target.value)}>
-                <option value="">Unassigned</option>
-                {agents.map((agent) => <option key={agent.id} value={agent.id}>{agent.name} ({agent.email})</option>)}
-              </select>
+              <section className="management-section">
+                <h3>Resolution</h3>
+                <label htmlFor="ticket-status">Status</label>
+                <p className="status-guidance">
+                  <span><strong>Open</strong> — newly submitted and waiting to be handled.</span>
+                  <span><strong>In Progress</strong> — support is actively working on it.</span>
+                  <span><strong>Completed</strong> — the issue has been resolved.</span>
+                </p>
+                <select id="ticket-status" value={status} onChange={(event) => setStatus(event.target.value)}>
+                  {statuses.map((value) => <option key={value} value={value}>{getStatusLabel(value)}</option>)}
+                </select>
+              </section>
+              <section className="management-section">
+                <h3>Priority</h3>
+                <label htmlFor="ticket-priority">Priority</label>
+                <select id="ticket-priority" value={priority} onChange={(event) => setPriority(event.target.value)}>
+                  {priorities.map((value) => <option key={value} value={value}>{getPriorityLabel(value)}</option>)}
+                </select>
+              </section>
+              <section className="management-section">
+                <h3>Assignment</h3>
+                <label htmlFor="ticket-agent">Assigned agent</label>
+                <select id="ticket-agent" value={assignedTo} onChange={(event) => setAssignedTo(event.target.value)}>
+                  <option value="">Unassigned</option>
+                  {agents.map((agent) => <option key={agent.id} value={agent.id}>{agent.name} ({agent.email})</option>)}
+                </select>
+              </section>
               {formError && <p className="form-error" role="alert">{formError}</p>}
               <button type="submit" disabled={isSaving}>{isSaving ? "Saving..." : "Save changes"}</button>
             </form>
@@ -126,7 +143,11 @@ function AgentTicketDetails() {
               {comments.length === 0 && <p>No comments yet.</p>}
               {comments.map((item) => (
                 <article className="comment-card" key={item.id}>
-                  <strong>{item.author_name}</strong><time dateTime={item.created_at}>{formatDate(item.created_at)}</time><p>{item.comment}</p>
+                  <div className="comment-author">
+                    <span className={`role-pill role-${item.author_role}`}>{getCommentRoleLabel(item.author_role)}</span>
+                    <strong>{item.author_name}</strong>
+                  </div>
+                  <time dateTime={item.created_at}>{formatDate(item.created_at)}</time><p>{item.comment}</p>
                 </article>
               ))}
               <form className="comment-form" onSubmit={addComment}>

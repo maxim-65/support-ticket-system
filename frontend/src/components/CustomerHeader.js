@@ -20,6 +20,7 @@ function CustomerHeader() {
         <span className="welcome-text">Hi, {user.name}</span>
         <Link to="/customer/dashboard">Dashboard</Link>
         <Link to="/customer/tickets/new">New ticket</Link>
+        <Link to="/customer/tickets/past">Past tickets</Link>
         <button type="button" className="link-button" onClick={handleLogout}>
           Sign out
         </button>

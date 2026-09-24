@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import api from "../api/client";
 import CustomerHeader from "../components/CustomerHeader";
+import { getCommentRoleLabel, getPriorityLabel, getStatusLabel } from "../utils/ticketLabels";
 
 function formatDate(value) {
   return value ? new Date(value).toLocaleString() : "Not available";
@@ -72,7 +73,9 @@ function CustomerTicketDetails() {
     <>
       <CustomerHeader />
       <main className="page-container narrow-container">
-        <Link to="/customer/dashboard">← Back to dashboard</Link>
+        <Link to={ticket?.status === "closed" ? "/customer/tickets/past" : "/customer/dashboard"}>
+          ← Back to {ticket?.status === "closed" ? "past tickets" : "current tickets"}
+        </Link>
         {isLoading && <p className="state-message">Loading ticket...</p>}
         {!isLoading && error && <p className="error-panel" role="alert">{error}</p>}
         {!isLoading && !error && ticket && (
@@ -84,11 +87,12 @@ function CustomerTicketDetails() {
                   <h1>{ticket.subject}</h1>
                   <p>Ticket #{ticket.id}</p>
                 </div>
-                <span className={`badge badge-${ticket.status}`}>{ticket.status}</span>
+                <span className={`badge badge-${ticket.status}`}>{getStatusLabel(ticket.status)}</span>
               </div>
               <p className="ticket-description">{ticket.description}</p>
               <dl className="detail-grid">
-                <div><dt>Priority</dt><dd>{ticket.priority}</dd></div>
+                <div><dt>Priority</dt><dd><span className={`priority-badge priority-${ticket.priority}`}>{getPriorityLabel(ticket.priority)}</span></dd></div>
+                <div><dt>Assigned Agent</dt><dd>{ticket.agent_name || "Unassigned"}</dd></div>
                 <div><dt>Created</dt><dd>{formatDate(ticket.created_at)}</dd></div>
                 <div><dt>Updated</dt><dd>{formatDate(ticket.updated_at)}</dd></div>
               </dl>
@@ -99,7 +103,10 @@ function CustomerTicketDetails() {
               {comments.length === 0 && <p>No comments yet.</p>}
               {comments.map((item) => (
                 <article className="comment-card" key={item.id}>
-                  <strong>{item.author_name}</strong>
+                  <div className="comment-author">
+                    <span className={`role-pill role-${item.author_role}`}>{getCommentRoleLabel(item.author_role)}</span>
+                    <strong>{item.author_name}</strong>
+                  </div>
                   <time dateTime={item.created_at}>{formatDate(item.created_at)}</time>
                   <p>{item.comment}</p>
                 </article>

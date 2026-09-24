@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../api/client";
 import AgentHeader from "../components/AgentHeader";
 import AgentTicketCard from "../components/AgentTicketCard";
+import { getPriorityLabel, getStatusLabel } from "../utils/ticketLabels";
 
 const emptyFilters = { search: "", status: "", priority: "", sortBy: "updated_at", sortOrder: "desc" };
 
@@ -26,7 +27,7 @@ function AgentDashboard() {
         api.get("/tickets", { params: listParams }),
       ]);
       const allTickets = allResponse.data;
-      setTickets(filteredResponse.data);
+      setTickets(filteredResponse.data.filter((ticket) => ticket.status !== "closed"));
       setStatistics({
         total: allTickets.length,
         open: allTickets.filter((ticket) => ticket.status === "open").length,
@@ -57,8 +58,11 @@ function AgentDashboard() {
         <div className="page-heading">
           <div>
             <h1>Agent dashboard</h1>
-            <p>Review and manage all support requests.</p>
+            <p>Review and manage active support requests.</p>
           </div>
+          <Link className="secondary-button" to="/agent/tickets/completed">
+            View completed tickets
+          </Link>
         </div>
 
         <section className="stats-grid" aria-label="Ticket statistics">
@@ -73,13 +77,17 @@ function AgentDashboard() {
           <input id="agent-search" name="search" value={filters.search} onChange={updateFilter} placeholder="Search subject or description" />
           <label htmlFor="agent-status">Status</label>
           <select id="agent-status" name="status" value={filters.status} onChange={updateFilter}>
-            <option value="">All statuses</option><option value="open">Open</option>
-            <option value="in_progress">In progress</option><option value="closed">Closed</option>
+            <option value="">All active statuses</option>
+            {["open", "in_progress"].map((value) => (
+              <option key={value} value={value}>{getStatusLabel(value)}</option>
+            ))}
           </select>
           <label htmlFor="agent-priority">Priority</label>
           <select id="agent-priority" name="priority" value={filters.priority} onChange={updateFilter}>
-            <option value="">All priorities</option><option value="low">Low</option>
-            <option value="medium">Medium</option><option value="high">High</option>
+            <option value="">All priorities</option>
+            {["low", "medium", "high"].map((value) => (
+              <option key={value} value={value}>{getPriorityLabel(value)}</option>
+            ))}
           </select>
           <label htmlFor="agent-sort">Sort by</label>
           <select id="agent-sort" name="sortBy" value={filters.sortBy} onChange={updateFilter}>
@@ -95,7 +103,10 @@ function AgentDashboard() {
         {error && <p className="error-panel" role="alert">{error}</p>}
         {isLoading && <p className="state-message">Loading tickets...</p>}
         {!isLoading && !error && tickets.length === 0 && (
-          <section className="empty-state"><h2>No tickets found</h2><p>Try clearing the filters or changing your search.</p></section>
+          <section className="empty-state">
+            <h2>{filters.search || filters.status || filters.priority ? "No tickets match your current filters." : "No active tickets require attention"}</h2>
+            <p>{filters.search || filters.status || filters.priority ? "Try clearing the filters or changing your search." : "Completed tickets are available in the completed tickets view."}</p>
+          </section>
         )}
         {!isLoading && !error && tickets.length > 0 && (
           <section className="ticket-list" aria-label="All tickets">

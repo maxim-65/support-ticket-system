@@ -38,6 +38,11 @@ export function AuthProvider({ children }) {
     return response.data;
   };
 
+  const registerAgent = async (details) => {
+    const response = await api.post("/auth/register/agent", details);
+    return response.data;
+  };
+
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -53,6 +58,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(token && user),
       login,
       register,
+      registerAgent,
       logout,
     }),
     [token, user]

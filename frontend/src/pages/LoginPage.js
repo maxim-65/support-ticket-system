@@ -81,14 +81,23 @@ function LoginPage() {
             required
           />
 
-          {error && <p role="alert">{error}</p>}
+          {error && <p className="form-error" role="alert">{error}</p>}
           <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
-        <p>
-          New customer? <Link to="/register">Create an account</Link>
-        </p>
+        <div className="auth-navigation" aria-label="Account creation options">
+          <p>
+            <Link className="auth-secondary-link" to="/register">
+              Create Customer Account
+            </Link>
+          </p>
+          <p>
+            <Link className="auth-secondary-link" to="/register/agent">
+              Create Support Account
+            </Link>
+          </p>
+        </div>
       </section>
     </main>
   );
